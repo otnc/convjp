@@ -1,6 +1,6 @@
 {
   "name": "convjp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "日本語用の文字化けエンコード・デコードライブラリ",
   "main": "index.js",
   "types": "index.d.ts",
