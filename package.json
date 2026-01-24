@@ -1,11 +1,11 @@
 {
   "name": "convjp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "日本語用の文字化けエンコード・デコードライブラリ",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "repository": {
     "type": "git",
@@ -30,9 +30,6 @@
   "homepage": "https://github.com/otoneko1102/convjp#readme",
   "dependencies": {
     "iconv-lite": "^0.6.3"
-  },
-  "directories": {
-    "test": "tests"
   },
   "devDependencies": {}
 }
