@@ -2,6 +2,9 @@
 
 日本語用の文字化けエンコード・デコードライブラリ
 
+> [!NOTE]
+> ブラウザ(Web)環境の安定版(バンドル)はこちら: [convjp-browser](https://www.npmjs.com/package/convjp-browser)
+
 ## 使い方
 
 ```js
