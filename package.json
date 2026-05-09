@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/otoneko1102/convjp.git"
+    "url": "git+https://github.com/otnc/convjp.git"
   },
   "keywords": [
     "mojibake",
@@ -25,9 +25,9 @@
   "author": "otoneko.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/otoneko1102/convjp/issues"
+    "url": "https://github.com/otnc/convjp/issues"
   },
-  "homepage": "https://github.com/otoneko1102/convjp#readme",
+  "homepage": "https://github.com/otnc/convjp#readme",
   "dependencies": {
     "iconv-lite": "^0.6.3"
   },
