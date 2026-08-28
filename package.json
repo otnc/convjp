@@ -1,6 +1,6 @@
 {
   "name": "convjp",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "日本語用の文字化けエンコード・デコードライブラリ",
   "type": "module",
   "packageManager": "pnpm@10.34.5",
