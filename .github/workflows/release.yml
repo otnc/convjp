@@ -8,9 +8,12 @@ on:
         required: true
         default: patch
 
+# Trusted publishing: npm authenticates this workflow via OIDC, so no NPM_TOKEN
+# secret is needed. Configure the link on npmjs.com first:
+#   package Settings -> Publishing access -> Trusted publishers -> GitHub
 permissions:
   contents: write # push the version commit/tag and create the GitHub Release
-  id-token: write # npm provenance
+  id-token: write # npm trusted publishing (OIDC)
 
 jobs:
   release:
@@ -26,7 +29,6 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org
 
       - run: pnpm install --frozen-lockfile
 
@@ -51,6 +53,10 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # Trusted publishing: no NODE_AUTH_TOKEN — npm exchanges the OIDC token
+      # issued by GitHub for a short-lived publish credential.
+      - run: npm install -g npm@11
+
       - name: Publish to npm
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -61,8 +67,6 @@ jobs:
             TAG=latest
           fi
           npm publish --provenance --access public --tag "$TAG"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Commit, tag and push
         run: |
