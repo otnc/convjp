@@ -15,6 +15,7 @@ const common = {
   minify: false,
   sourcemap: false,
   legalComments: 'inline',
+  external: ['iconv-lite'],
 };
 
 // ESM
