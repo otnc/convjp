@@ -1,0 +1,83 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release: a semver bump (patch/minor/major/prerelease) or an explicit version (e.g. 1.1.0)'
+        required: true
+        default: patch
+
+permissions:
+  contents: write # push the version commit/tag and create the GitHub Release
+  id-token: write # npm provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint, format check, build and test
+        run: |
+          pnpm lint
+          pnpm format:check
+          pnpm build
+          pnpm test
+
+      - name: Bump version
+        id: bump
+        run: |
+          OLD="$(node -p "require('./package.json').version")"
+          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version >/dev/null
+          NEW="$(node -p "require('./package.json').version")"
+          echo "version=v${NEW}" >> "$GITHUB_OUTPUT"
+          if [ "$OLD" = "$NEW" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Version is already ${NEW}; skipping the bump commit but still releasing."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to npm
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          # If version includes 'dev', publish with 'dev' tag, otherwise use 'latest'
+          if echo "$VERSION" | grep -q 'dev'; then
+            TAG=dev
+          else
+            TAG=latest
+          fi
+          npm publish --provenance --access public --tag "$TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit, tag and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Only commit when the bump actually changed package.json; otherwise just tag and release.
+          if [ "${{ steps.bump.outputs.changed }}" = "true" ]; then
+            git commit -am "release: ${{ steps.bump.outputs.version }}"
+          fi
+          if ! git rev-parse -q --verify "refs/tags/${{ steps.bump.outputs.version }}" >/dev/null; then
+            git tag "${{ steps.bump.outputs.version }}"
+          fi
+          git push origin HEAD "${{ steps.bump.outputs.version }}"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ steps.bump.outputs.version }}" --title "${{ steps.bump.outputs.version }}" --generate-notes
